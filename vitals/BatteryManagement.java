@@ -1,6 +1,6 @@
 package vitals;
 
-public class Main {
+public class BatteryManagement {
 
 	public static void main(String[] args) {
 		assert (BatteryConditionCheck.batteryIsOk(25, 70, 0.7f) == true);

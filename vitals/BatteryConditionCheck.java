@@ -16,24 +16,39 @@ public class BatteryConditionCheck {
 
 	static Function<Float, Boolean> chargeRateCheck = (chargeRate) -> {
 		if (chargeRate > 0.8) {
-			System.out.println("Battery charge rate check failed");
+			MessageUtil.printMessage(MessageConstants.BREACH, MessageConstants.CHARGE_RATE,
+					chargeRate > 0.8 ? MessageConstants.HIGH : MessageConstants.LOW);
 			return false;
 		}
+		checkForWarning(chargeRate, 0, 0.8f, MessageConstants.CHARGE_RATE, 5);
 		return true;
 	};
 	static Function<Float, Function<Float, Boolean>> socCheck = (soc) -> {
 		if (soc < 20 || soc > 80) {
-			System.out.println("Battery soc check failed");
+			MessageUtil.printMessage(MessageConstants.BREACH, MessageConstants.SOC,
+					soc > 80 ? MessageConstants.HIGH : MessageConstants.LOW);
 			return null;
 		}
+		checkForWarning(soc, 20, 80, MessageConstants.SOC, 5);
 		return chargeRateCheck;
 	};
 
 	static Function<Float, Function<Float, Boolean>> temperatureCheck(float temperature) {
 		if (temperature < 0 || temperature > 45) {
-			System.out.println("Battery temperature check failed");
+			MessageUtil.printMessage(MessageConstants.BREACH, MessageConstants.TEMPERATURE,
+					temperature > 45 ? MessageConstants.HIGH : MessageConstants.LOW);
 			return null;
 		}
+		checkForWarning(temperature, 0, 45, MessageConstants.TEMPERATURE, 5);
 		return socCheck;
+	}
+
+	static void checkForWarning(float value, float min, float max, String type, float deltaPercentage) {
+		float delta = (deltaPercentage / max) * 100;
+		if (type != MessageConstants.CHARGE_RATE && value <= (min + delta)) {
+			MessageUtil.printMessage(MessageConstants.WARNING, type, MessageConstants.LOW);
+		} else if (value >= (max - delta)) {
+			MessageUtil.printMessage(MessageConstants.WARNING, type, MessageConstants.HIGH);
+		}
 	}
 }
